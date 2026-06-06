@@ -108,6 +108,19 @@
   .back:hover{color:var(--ink);}
   .confirm{margin-top:.7em; padding-top:.6em; border-top:1px dashed var(--line);}
   .confirm .lab{font-size:.72em; font-weight:700; color:var(--act); letter-spacing:.04em;}
+  /* practice */
+  .prfields{display:flex; flex-direction:column; gap:.5em; margin:.7em 0;}
+  .prf{display:flex; align-items:center; gap:.6em; font-size:1.05em;}
+  .prf>span:first-child{min-width:9.5em; color:var(--mut);}
+  .prf input{width:8.5em; height:2.1em; font-size:1em; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); padding:0 .55em;}
+  .prf input:focus{outline:none; border-color:var(--act);}
+  .prmark{font-weight:700; font-size:1.3em; min-width:1em;}
+  .prmark.good{color:var(--thr);} .prmark.bad{color:var(--act);}
+  .prbtns{display:flex; gap:.5em; flex-wrap:wrap; margin:.8em 0 .3em;}
+  .pr-primary{background:var(--act); color:#fff; border-color:var(--act); font-weight:700;}
+  .pr-primary:hover{background:var(--act); filter:brightness(1.06);}
+  .prresult{font-weight:700; font-size:1.05em; min-height:1.5em; margin:.3em 0;}
+  .prresult.good{color:var(--thr);} .prresult.bad{color:var(--act);}
   /* schedule */
   .schnote{color:var(--act); font-size:.82em; margin:.3em 0 .6em;}
   .sched{display:grid; grid-template-columns:1fr; gap:.2em 1.6em;}
@@ -1045,20 +1058,54 @@
     dragger(cv,pl,function(){return [z1];},function(i,x,y){var b=vbnd(pl); z1.x=clamp(x,-b.x,b.x); z1.y=clamp(y,-b.y,b.y); draw();});
     reg('sl-rotation',{show:draw,redraw:draw});})();
 
-  // ===== 31 practice =====
-  (function(){var seg=$('#seg-pr'),body=$('#pr-body'),pidx=0,curPlane=null,curFig=null;
+  // ===== 31 practice (自分で解く → 答え合わせ → 必要なときだけ解答) =====
+  (function(){
+    var seg=$('#seg-pr'), body=$('#pr-body'), pidx=0, pl=null, st=null;
     var probs=[
-      {q:'問1：複素数 <i>z</i> = 3 + 4j を複素平面に図示せよ。', span:12, fig:function(pl){pl.fit();pl.clear();pl.axes();pl.vec(3,4,cssv('--z1'),{proj:true,label:'z'});pl.dot(3,4,cssv('--z1'),5);}, a:'実部3 → 横に3、虚部4 → 縦に4 進んだ点 (3, 4) への矢印。原点から (3,4) へ引きます。'},
-      {q:'問2：<i>z</i> = 3 + 4j の大きさと偏角（rad）を求めよ。', span:12, fig:function(pl){pl.fit();pl.clear();pl.axes();var o=pl.PX(0,0);pl.ctx.strokeStyle=cssv('--thr');pl.ctx.lineWidth=2;pl.ctx.beginPath();pl.ctx.arc(o[0],o[1],40,0,-Math.atan2(4,3),true);pl.ctx.stroke();pl.vec(3,4,cssv('--z1'),{label:'z'});pl.dot(3,4,cssv('--z1'),5);}, a:'|z| = √(3²+4²) = √25 = <strong>5</strong>。偏角 θ = arctan(4/3) = <strong>0.927 rad</strong>（≈ 53.13°）。'},
-      {q:'問3：<i>z</i><sub>1</sub> = 3 + 4j, <i>z</i><sub>2</sub> = 1 + j のとき <i>z</i><sub>2</sub>/<i>z</i><sub>1</sub> を求めよ。', span:0, fig:null, a:'分母 z₁ の共役（きょうやく）3−4j を分母・分子に掛ける。<br>分母 = 3²+4² = 25。<br>分子 = (1+j)(3−4j) = 3 −4j +3j −4j² = 3 −4j +3j +4 = 7 − j。<br>∴ z₂/z₁ = (7 − j)/25 = <strong>7/25 − j/25</strong>（= 0.28 − 0.04j）。'},
-      {q:'問4：<i>z</i> = 5 + 7j を極形式 <i>A</i>·e<sup>jθ</sup>（θ は rad）で表せ。', span:18, fig:function(pl){pl.fit();pl.clear();pl.axes();pl.vec(5,7,cssv('--zr'),{proj:true,label:'z'});pl.dot(5,7,cssv('--zr'),5);}, a:'A = |z| = √(5²+7²) = √74 ≈ <strong>8.602</strong>。θ = arctan(7/5) ≈ <strong>0.951 rad</strong>（≈ 54.46°）。<br>∴ z = √74 · e<sup>j·0.951</sup>。'}
+      { type:'plot', span:12, start:{x:1,y:1}, target:{x:3,y:4},
+        q:'問1：複素数 <i>z</i> = 3 + 4j を複素平面に図示せよ。矢印の先をドラッグして点 (3, 4) に合わせ、「答え合わせ」を押してください。',
+        sol:'実部3 → 横に3、虚部4 → 縦に4 進んだ点 (3, 4) への矢印が答えです。' },
+      { type:'fields',
+        q:'問2：<i>z</i> = 3 + 4j の大きさ |<i>z</i>| と偏角 <i>θ</i>（rad）を求めよ。',
+        fields:[{label:'大きさ |z|', ans:5, tol:0.06, step:'0.1'},{label:'偏角 θ [rad]', ans:Math.atan2(4,3), tol:0.03, step:'0.01'}],
+        sol:'|z| = √(3²+4²) = √25 = <strong>5</strong>。偏角 θ = arctan(4/3) ≈ <strong>0.927 rad</strong>（≈ 53.1°）。' },
+      { type:'fields',
+        q:'問3：<i>z</i><sub>1</sub> = 3 + 4j, <i>z</i><sub>2</sub> = 1 + j のとき <i>z</i><sub>2</sub>/<i>z</i><sub>1</sub> を a + j b の形で求めよ。',
+        fields:[{label:'実部 a', ans:0.28, tol:0.02, step:'0.01'},{label:'虚部 b', ans:-0.04, tol:0.02, step:'0.01'}],
+        sol:'分母 z₁ の共役（きょうやく）3−4j を分母・分子に掛ける。分母 = 3²+4² = 25。分子 = (1+j)(3−4j) = 7 − j。∴ z₂/z₁ = (7 − j)/25 = <strong>0.28 − 0.04j</strong>。' },
+      { type:'fields',
+        q:'問4：<i>z</i> = 5 + 7j を極形式 <i>A</i>·e<sup>jθ</sup>（θ は rad）で表せ。',
+        fields:[{label:'大きさ A', ans:Math.sqrt(74), tol:0.06, step:'0.1'},{label:'偏角 θ [rad]', ans:Math.atan2(7,5), tol:0.03, step:'0.01'}],
+        sol:'A = |z| = √(5²+7²) = √74 ≈ <strong>8.602</strong>。θ = arctan(7/5) ≈ <strong>0.951 rad</strong>（≈ 54.5°）。∴ z = √74 · e<sup>j·0.951</sup>。' }
     ];
-    function render(){var p=probs[pidx]; curPlane=null; curFig=null;
-      body.innerHTML='<p class="desc" style="margin-top:.6em;">'+p.q+'</p>'+(p.fig?'<canvas id="cv-pr" class="plane"></canvas>':'')+'<button class="btn" id="pr-rev" style="margin-top:.5em;">答えを見る</button><div class="reveal" id="pr-ans">'+p.a+'</div>';
-      $('#pr-rev').onclick=function(){$('#pr-ans').classList.toggle('show');};
-      if(p.fig){var cv=$('#cv-pr'); curPlane=makePlane(cv,p.span,p.span); curFig=p.fig; curFig(curPlane);}}
+    function drawPlot(){ pl.fit(); pl.clear(); pl.axes(); pl.vec(st.x,st.y,cssv('--z1'),{proj:true,label:'z'}); pl.handle(st.x,st.y,cssv('--z1'));
+      pl.ctx.fillStyle=cssv('--mut'); pl.ctx.font='12px sans-serif'; pl.ctx.fillText('いまの点: ('+st.x+', '+st.y+')', 12, pl.H-12); }
+    function render(){
+      var p=probs[pidx]; pl=null; st=null;
+      var h='<p class="desc" style="margin-top:.6em;">'+p.q+'</p>';
+      if(p.type==='plot'){ h+='<canvas id="cv-pr" class="plane"></canvas>'; }
+      else { h+='<div class="prfields">'; p.fields.forEach(function(f,i){ h+='<label class="prf"><span>'+f.label+'</span><input type="number" inputmode="decimal" step="'+(f.step||'0.01')+'" id="prin'+i+'"><span class="prmark" id="prmk'+i+'"></span></label>'; }); h+='</div>'; }
+      h+='<div class="prbtns"><button class="btn pr-primary" id="pr-check">答え合わせ</button><button class="btn" id="pr-rev">答えを見る</button><button class="btn" id="pr-retry">やり直す</button></div>';
+      h+='<div class="prresult" id="pr-res"></div><div class="reveal" id="pr-ans"><strong>解答</strong>　'+p.sol+'</div>';
+      body.innerHTML=h;
+      $('#pr-rev').onclick=function(){ $('#pr-ans').classList.toggle('show'); };
+      $('#pr-check').onclick=check; $('#pr-retry').onclick=render;
+      if(p.type==='plot'){ var cv=$('#cv-pr'); pl=makePlane(cv,p.span,p.span); st={x:p.start.x,y:p.start.y}; drawPlot();
+        dragger(cv,pl,function(){return [st];},function(i,x,y){var b=vbnd(pl); st.x=clamp(Math.round(x),-Math.round(b.x),Math.round(b.x)); st.y=clamp(Math.round(y),-Math.round(b.y),Math.round(b.y)); drawPlot();}); }
+      else { p.fields.forEach(function(f,i){ $('#prin'+i).addEventListener('keydown',function(e){ if(e.key==='Enter')check(); }); }); }
+    }
+    function check(){
+      var p=probs[pidx], ok=true, res=$('#pr-res');
+      if(p.type==='plot'){ ok=(st.x===p.target.x && st.y===p.target.y); }
+      else { p.fields.forEach(function(f,i){ var el=$('#prin'+i), mk=$('#prmk'+i), v=parseFloat(el.value);
+        var good=isFinite(v)&&Math.abs(v-f.ans)<=f.tol; if(!good)ok=false;
+        if(el.value===''){ mk.textContent='—'; mk.className='prmark'; } else { mk.textContent=good?'○':'✕'; mk.className='prmark '+(good?'good':'bad'); } }); }
+      res.className='prresult '+(ok?'good':'bad');
+      res.innerHTML= ok ? '✓ 正解！' : '✕ 不正解。もう一度試すか、「答えを見る」で確認しましょう。';
+    }
     seg.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b)return; pidx=+b.getAttribute('data-v'); [].forEach.call(seg.children,function(x){x.classList.toggle('on',x===b);}); render();});
-    reg('sl-practice',{show:render,redraw:function(){if(curPlane&&curFig)curFig(curPlane);}});})();
+    reg('sl-practice',{show:render, redraw:function(){ if(probs[pidx].type==='plot'&&pl)drawPlot(); }});
+  })();
 
   // ---- boot ----
   var start=0, h=parseInt((location.hash||'').replace('#',''),10);
