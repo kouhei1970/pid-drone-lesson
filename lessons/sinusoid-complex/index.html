@@ -497,8 +497,8 @@
       <h1 class="tt">具体的な数で確かめる</h1>
       <div class="eq steps"><i>z</i><sub>1</sub> = 3 + j5、　<i>z</i><sub>2</sub> = 1 − j2</div>
       <div class="eq steps">
-        <span class="lead2">和</span><br><i>z</i><sub>1</sub>+<i>z</i><sub>2</sub> = (3+1) + j(5+(−2)) = <strong>4 + j3</strong><br>
-        <span class="lead2">差</span><br><i>z</i><sub>1</sub>−<i>z</i><sub>2</sub> = (3−1) + j(5−(−2)) = <strong>2 + j7</strong>
+        <span class="lead2">和</span><br><i>z</i><sub>1</sub>+<i>z</i><sub>2</sub> = (3+1) + j(5−2) = <strong>4 + j3</strong><br>
+        <span class="lead2">差</span><br><i>z</i><sub>1</sub>−<i>z</i><sub>2</sub> = (3−1) + j(5+2) = <strong>2 + j7</strong>
       </div>
       <p class="note">ポイントは「実部どうし・虚部どうし」で足し引きすること。引き算では −(−2)=+2 の符号に注意。</p>
     </div>
@@ -952,8 +952,9 @@
     function draw(){pl.fit(); pl.clear(); pl.axes(); var rx=mode==='add'?z1.x+z2.x:z1.x-z2.x, ry=mode==='add'?z1.y+z2.y:z1.y-z2.y;
       pl.ctx.save(); pl.ctx.setLineDash([5,5]); pl.ctx.globalAlpha=.7; pl.arrow(z1.x,z1.y,rx,ry,cssv('--z2'),2); pl.ctx.restore();
       pl.vec(z1.x,z1.y,cssv('--z1'),{label:'z₁'}); pl.handle(z1.x,z1.y,cssv('--z1')); pl.vec(z2.x,z2.y,cssv('--z2'),{label:'z₂'}); pl.handle(z2.x,z2.y,cssv('--z2'));
-      pl.vec(rx,ry,cssv('--zr'),{w:3.6}); pl.dot(rx,ry,cssv('--zr'),5); var op=mode==='add'?'+':'−';
-      $('#eq-add').innerHTML='<span class="big">z₁ '+op+' z₂ = ('+fmt(z1.x,0)+' '+op+' '+fmt(z2.x,0)+') + j('+fmt(z1.y,0)+' '+op+' '+fmt(z2.y,0)+')</span><br>= <strong>'+fmt(rx,0)+(ry>=0?' + j':' − j')+fmt(Math.abs(ry),0)+'</strong>';}
+      pl.vec(rx,ry,cssv('--zr'),{w:3.6}); pl.dot(rx,ry,cssv('--zr'),5); var op=mode==='add'?'+':'−', sub=mode!=='add';
+      function term(a,b){var minus=sub!==(b<0); return fmt(a,0)+(minus?' − ':' + ')+fmt(Math.abs(b),0);}
+      $('#eq-add').innerHTML='<span class="big">z₁ '+op+' z₂ = ('+term(z1.x,z2.x)+') + j('+term(z1.y,z2.y)+')</span><br>= <strong>'+fmt(rx,0)+(ry>=0?' + j':' − j')+fmt(Math.abs(ry),0)+'</strong>';}
     dragger(cv,pl,function(){return [z1,z2];},function(i,x,y){var p=i===0?z1:z2; p.x=clamp(Math.round(x),-8,8); p.y=clamp(Math.round(y),-8,8); draw();});
     reg('sl-add',{show:draw,redraw:draw});})();
 
