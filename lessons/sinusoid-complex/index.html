@@ -776,6 +776,7 @@
   function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
   function fmt(v,d){d=d==null?2:d; return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toFixed(d);}
   function roundTo(v,dp){var f=Math.pow(10,dp); return Math.round(v*f)/f;} // 四捨五入（指定小数桁）
+  function decimals(s){s=String(s).trim(); if(s.indexOf('.')<0)return 0; s=s.replace(/0+$/,''); var i=s.indexOf('.'); return i<0?0:(s.length-i-1);} // 末尾0を除いた小数桁数
   function clamp(v,a,b){return v<a?a:(v>b?b:v);}
   // visible half-range (in plot units) of a plane, minus a small margin so the arrowhead stays in view
   function vbnd(pl){var m=14/pl.s; return {x:(pl.W/2)/pl.s-m, y:(pl.H/2)/pl.s-m};}
@@ -1098,14 +1099,17 @@
       else { p.fields.forEach(function(f,i){ $('#prin'+i).addEventListener('keydown',function(e){ if(e.key==='Enter')check(); }); }); }
     }
     function check(){
-      var p=probs[pidx], ok=true, res=$('#pr-res');
+      var p=probs[pidx], ok=true, digitErr=false, res=$('#pr-res');
       if(p.type==='plot'){ ok=(st.x===p.target.x && st.y===p.target.y); }
-      else { p.fields.forEach(function(f,i){ var el=$('#prin'+i), mk=$('#prmk'+i), v=parseFloat(el.value);
-        // 指定小数桁に四捨五入して一致すれば正解（正しく丸めた値を受け付ける）
+      else { p.fields.forEach(function(f,i){ var el=$('#prin'+i), mk=$('#prmk'+i), raw=el.value.trim(), v=parseFloat(raw);
+        if(raw===''){ mk.textContent='—'; mk.className='prmark'; ok=false; return; }
+        if(decimals(raw)>f.dp){ mk.textContent='⚠'; mk.className='prmark bad'; ok=false; digitErr=true; return; } // 指定より細かい桁 → 桁数を指摘
+        // 指定小数桁ちょうど（以下）なら、四捨五入した値で正誤を判定
         var good=isFinite(v)&&Math.abs(roundTo(v,f.dp)-roundTo(f.ans,f.dp))<1e-9; if(!good)ok=false;
-        if(el.value===''){ mk.textContent='—'; mk.className='prmark'; } else { mk.textContent=good?'○':'✕'; mk.className='prmark '+(good?'good':'bad'); } }); }
-      res.className='prresult '+(ok?'good':'bad');
-      res.innerHTML= ok ? '✓ 正解！' : '✕ 不正解。もう一度試すか、「答えを見る」で確認しましょう。';
+        mk.textContent=good?'○':'✕'; mk.className='prmark '+(good?'good':'bad'); }); }
+      if(digitErr){ var dpm=Math.max.apply(null,p.fields.map(function(f){return f.dp;}));
+        res.className='prresult bad'; res.innerHTML='⚠ 桁が多すぎます。指定の桁に<b>四捨五入してから</b>、<b>小数第'+dpm+'位まで</b>で入力し直してください（⚠ の欄）。'; }
+      else { res.className='prresult '+(ok?'good':'bad'); res.innerHTML= ok ? '✓ 正解！' : '✕ 不正解。もう一度試すか、「答えを見る」で確認しましょう。'; }
     }
     seg.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b)return; pidx=+b.getAttribute('data-v'); [].forEach.call(seg.children,function(x){x.classList.toggle('on',x===b);}); render();});
     reg('sl-practice',{show:render, redraw:function(){ if(probs[pidx].type==='plot'&&pl)drawPlot(); }});
