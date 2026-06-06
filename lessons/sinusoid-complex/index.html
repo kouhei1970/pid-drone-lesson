@@ -1060,7 +1060,7 @@
 
   // ===== 31 practice (自分で解く → 答え合わせ → 必要なときだけ解答) =====
   (function(){
-    var seg=$('#seg-pr'), body=$('#pr-body'), pidx=0, pl=null, st=null;
+    var seg=$('#seg-pr'), body=$('#pr-body'), pidx=0, pl=null, st=null, revealAns=false;
     var probs=[
       { type:'plot', span:12, start:{x:1,y:1}, target:{x:3,y:4},
         q:'問1：複素数 <i>z</i> = 3 + 4j を複素平面に図示せよ。矢印の先をドラッグして点 (3, 4) に合わせ、「答え合わせ」を押してください。',
@@ -1078,17 +1078,19 @@
         fields:[{label:'大きさ A', ans:Math.sqrt(74), tol:0.06, step:'0.1'},{label:'偏角 θ [rad]', ans:Math.atan2(7,5), tol:0.03, step:'0.01'}],
         sol:'A = |z| = √(5²+7²) = √74 ≈ <strong>8.602</strong>。θ = arctan(7/5) ≈ <strong>0.951 rad</strong>（≈ 54.5°）。∴ z = √74 · e<sup>j·0.951</sup>。' }
     ];
-    function drawPlot(){ pl.fit(); pl.clear(); pl.axes(); pl.vec(st.x,st.y,cssv('--z1'),{proj:true,label:'z'}); pl.handle(st.x,st.y,cssv('--z1'));
+    function drawPlot(){ pl.fit(); pl.clear(); pl.axes();
+      if(revealAns){ var t=probs[pidx].target; pl.vec(t.x,t.y,cssv('--z2'),{label:'正解 ('+t.x+','+t.y+')'}); pl.dot(t.x,t.y,cssv('--z2'),5); }
+      pl.vec(st.x,st.y,cssv('--z1'),{proj:true,label:'z'}); pl.handle(st.x,st.y,cssv('--z1'));
       pl.ctx.fillStyle=cssv('--mut'); pl.ctx.font='12px sans-serif'; pl.ctx.fillText('いまの点: ('+st.x+', '+st.y+')', 12, pl.H-12); }
     function render(){
-      var p=probs[pidx]; pl=null; st=null;
+      var p=probs[pidx]; pl=null; st=null; revealAns=false;
       var h='<p class="desc" style="margin-top:.6em;">'+p.q+'</p>';
       if(p.type==='plot'){ h+='<canvas id="cv-pr" class="plane"></canvas>'; }
       else { h+='<div class="prfields">'; p.fields.forEach(function(f,i){ h+='<label class="prf"><span>'+f.label+'</span><input type="number" inputmode="decimal" step="'+(f.step||'0.01')+'" id="prin'+i+'"><span class="prmark" id="prmk'+i+'"></span></label>'; }); h+='</div>'; }
       h+='<div class="prbtns"><button class="btn pr-primary" id="pr-check">答え合わせ</button><button class="btn" id="pr-rev">答えを見る</button><button class="btn" id="pr-retry">やり直す</button></div>';
       h+='<div class="prresult" id="pr-res"></div><div class="reveal" id="pr-ans"><strong>解答</strong>　'+p.sol+'</div>';
       body.innerHTML=h;
-      $('#pr-rev').onclick=function(){ $('#pr-ans').classList.toggle('show'); };
+      $('#pr-rev').onclick=function(){ var sh=$('#pr-ans').classList.toggle('show'); if(p.type==='plot'){ revealAns=sh; drawPlot(); } };
       $('#pr-check').onclick=check; $('#pr-retry').onclick=render;
       if(p.type==='plot'){ var cv=$('#cv-pr'); pl=makePlane(cv,p.span,p.span); st={x:p.start.x,y:p.start.y}; drawPlot();
         dragger(cv,pl,function(){return [st];},function(i,x,y){var b=vbnd(pl); st.x=clamp(Math.round(x),-Math.round(b.x),Math.round(b.x)); st.y=clamp(Math.round(y),-Math.round(b.y),Math.round(b.y)); drawPlot();}); }
