@@ -643,7 +643,7 @@
         <div class="grid2" style="margin-top:.5em;">
           <div><canvas id="cv-polar" class="plane"></canvas></div>
           <div>
-            <div class="row"><label>大きさ <i>r</i></label><input type="range" id="s-r" min="0.5" max="5.5" step="0.1" value="3.6"><span class="val" id="v-r">3.6</span></div>
+            <div class="row"><label>大きさ <i>r</i></label><input type="range" id="s-r" min="0.5" max="6" step="0.1" value="3.6"><span class="val" id="v-r">3.6</span></div>
             <div class="row"><label>偏角 <i>θ</i></label><input type="range" id="s-pth" min="-180" max="180" step="1" value="34"><span class="val" id="v-pth">34°</span></div>
             <div class="eq" id="eq-polar"></div>
           </div>
@@ -763,6 +763,8 @@
   function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
   function fmt(v,d){d=d==null?2:d; return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toFixed(d);}
   function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+  // visible half-range (in plot units) of a plane, minus a small margin so the arrowhead stays in view
+  function vbnd(pl){var m=14/pl.s; return {x:(pl.W/2)/pl.s-m, y:(pl.H/2)/pl.s-m};}
 
   var slides=[].slice.call(document.querySelectorAll('.slide'));
   var N=slides.length, cur=0;
@@ -930,14 +932,14 @@
   (function(){var cv=$('#cv-cz'),pl=makePlane(cv,12,12); var z={x:3,y:2};
     function draw(){pl.fit(); pl.clear(); pl.axes(); pl.vec(z.x,z.y,cssv('--z1'),{proj:true,label:'z'}); pl.handle(z.x,z.y,cssv('--z1'));
       $('#eq-cz').innerHTML='<span class="big"><i>z</i> = <span class="re">'+fmt(z.x,1)+'</span>'+(z.y>=0?' + <span class="im">j':' − <span class="im">j')+fmt(Math.abs(z.y),1)+'</span></span><br>実部 x = '+fmt(z.x,1)+' ／ 虚部 y = '+fmt(z.y,1);}
-    dragger(cv,pl,function(){return [z];},function(i,x,y){z.x=clamp(Math.round(x*2)/2,-5.5,5.5); z.y=clamp(Math.round(y*2)/2,-5.5,5.5); draw();});
+    dragger(cv,pl,function(){return [z];},function(i,x,y){var b=vbnd(pl); z.x=clamp(Math.round(x*2)/2,-b.x,b.x); z.y=clamp(Math.round(y*2)/2,-b.y,b.y); draw();});
     reg('sl-reim',{show:draw,redraw:draw});})();
 
   // ===== 16 conjugate =====
   (function(){var cv=$('#cv-conj'),pl=makePlane(cv,12,12); var z={x:3,y:2.5};
     function draw(){pl.fit(); pl.clear(); pl.axes(); pl.vec(z.x,z.y,cssv('--z1'),{label:'z'}); pl.handle(z.x,z.y,cssv('--z1')); pl.vec(z.x,-z.y,cssv('--z2'),{label:'z̄'}); pl.dot(z.x,-z.y,cssv('--z2'),4);
       $('#eq-conj').innerHTML='<span class="big"><i>z</i> = '+fmt(z.x,1)+(z.y>=0?' + j':' − j')+fmt(Math.abs(z.y),1)+'</span><br><span class="big"><i>z̄</i> = '+fmt(z.x,1)+(z.y>=0?' − j':' + j')+fmt(Math.abs(z.y),1)+'</span>';}
-    dragger(cv,pl,function(){return [z];},function(i,x,y){z.x=clamp(Math.round(x*2)/2,-5.5,5.5); z.y=clamp(Math.round(y*2)/2,-5.5,5.5); draw();});
+    dragger(cv,pl,function(){return [z];},function(i,x,y){var b=vbnd(pl); z.x=clamp(Math.round(x*2)/2,-b.x,b.x); z.y=clamp(Math.round(y*2)/2,-b.y,b.y); draw();});
     reg('sl-conj',{show:draw,redraw:draw});})();
 
   // ===== 17 arg & magnitude =====
@@ -946,7 +948,7 @@
       pl.ctx.strokeStyle=cssv('--thr'); pl.ctx.lineWidth=2; pl.ctx.beginPath(); pl.ctx.arc(o[0],o[1],ar,0,-th,th>0); pl.ctx.stroke();
       pl.vec(z.x,z.y,cssv('--z1'),{label:'z'}); pl.handle(z.x,z.y,cssv('--z1'));
       $('#eq-arg').innerHTML='大きさ |<i>z</i>| = √('+fmt(z.x,1)+'² + '+fmt(z.y,1)+'²) = <strong>'+fmt(r,2)+'</strong><br>偏角 <i>θ</i> = arctan(y/x) = <strong>'+fmt(th*180/Math.PI,1)+'°</strong>（'+fmt(th,2)+' rad）';}
-    dragger(cv,pl,function(){return [z];},function(i,x,y){z.x=clamp(Math.round(x*2)/2,-5.5,5.5); z.y=clamp(Math.round(y*2)/2,-5.5,5.5); if(Math.abs(z.x)<.2&&Math.abs(z.y)<.2)z.x=.5; draw();});
+    dragger(cv,pl,function(){return [z];},function(i,x,y){var b=vbnd(pl); z.x=clamp(Math.round(x*2)/2,-b.x,b.x); z.y=clamp(Math.round(y*2)/2,-b.y,b.y); if(Math.abs(z.x)<.2&&Math.abs(z.y)<.2)z.x=.5; draw();});
     reg('sl-argmag',{show:draw,redraw:draw});})();
 
   // ===== 18 special cases static =====
@@ -965,7 +967,7 @@
       pl.vec(rx,ry,cssv('--zr'),{w:3.6}); pl.dot(rx,ry,cssv('--zr'),5); var op=mode==='add'?'+':'−', sub=mode!=='add';
       function term(a,b){var minus=sub!==(b<0); return fmt(a,0)+(minus?' − ':' + ')+fmt(Math.abs(b),0);}
       $('#eq-add').innerHTML='<span class="big">z₁ '+op+' z₂ = ('+term(z1.x,z2.x)+') + j('+term(z1.y,z2.y)+')</span><br>= <strong>'+fmt(rx,0)+(ry>=0?' + j':' − j')+fmt(Math.abs(ry),0)+'</strong>';}
-    dragger(cv,pl,function(){return [z1,z2];},function(i,x,y){var p=i===0?z1:z2; p.x=clamp(Math.round(x),-8,8); p.y=clamp(Math.round(y),-8,8); draw();});
+    dragger(cv,pl,function(){return [z1,z2];},function(i,x,y){var p=i===0?z1:z2,b=vbnd(pl); p.x=clamp(Math.round(x),-Math.round(b.x),Math.round(b.x)); p.y=clamp(Math.round(y),-Math.round(b.y),Math.round(b.y)); draw();});
     reg('sl-add',{show:draw,redraw:draw});})();
 
   // ===== 22 mul/div interactive =====
@@ -1029,7 +1031,7 @@
       pl.ctx.strokeStyle=cssv('--mut'); pl.ctx.lineWidth=1.4; pl.ctx.beginPath(); pl.ctx.arc(o[0],o[1],24,0,-th,th>0); pl.ctx.stroke();
       pl.vec(x,y,cssv('--zr'),{proj:true,label:'z'}); pl.handle(x,y,cssv('--zr'));
       $('#eq-polar').innerHTML='<span class="big">直交：'+fmt(x,2)+(y>=0?' + j':' − j')+fmt(Math.abs(y),2)+'</span><br><span class="big">極：'+fmt(r,2)+' · e<sup>j'+fmt(th,2)+'</sup>（'+fmt(r,2)+' ∠ '+Math.round(th*180/Math.PI)+'°）</span>';}
-    dragger(cv,pl,function(){var x=r*Math.cos(th),y=r*Math.sin(th); return [{x:x,y:y}];},function(i,x,y){r=clamp(Math.hypot(x,y),0.3,5.5); th=Math.atan2(y,x); sync(); draw();});
+    dragger(cv,pl,function(){var x=r*Math.cos(th),y=r*Math.sin(th); return [{x:x,y:y}];},function(i,x,y){var b=vbnd(pl),cxv=clamp(x,-b.x,b.x),cyv=clamp(y,-b.y,b.y); r=clamp(Math.hypot(cxv,cyv),0.5,Math.min(6,b.x,b.y)); th=Math.atan2(cyv,cxv); sync(); draw();});
     reg('sl-polar',{show:function(){sync();draw();},redraw:draw});})();
 
   // ===== 30 rotation =====
@@ -1040,7 +1042,7 @@
       pl.ctx.strokeStyle=cssv('--mut'); pl.ctx.lineWidth=1.4; pl.ctx.beginPath(); pl.ctx.arc(o[0],o[1],28,-a1,-ar,th2>0); pl.ctx.stroke();
       pl.vec(z1.x,z1.y,cssv('--z1'),{label:'z₁'}); pl.handle(z1.x,z1.y,cssv('--z1')); pl.vec(rx,ry,cssv('--zr'),{w:3.4,label:'z₁·z₂'}); pl.dot(rx,ry,cssv('--zr'),5);
       $('#eq-rot').innerHTML='z₂ = '+fmt(r2,2)+' · e<sup>j'+Math.round(th2*180/Math.PI)+'°</sup><br>|z₁·z₂| = '+fmt(r1,2)+'×'+fmt(r2,2)+' = <strong>'+fmt(rr,2)+'</strong><br>偏角 = '+Math.round(a1*180/Math.PI)+'° + '+Math.round(th2*180/Math.PI)+'° = <strong>'+Math.round(ar*180/Math.PI)+'°</strong>'+(Math.abs(r2-1)<1e-6?'<br><span style="color:var(--act)">r₂=1 → 長さ不変の純粋な回転</span>':'');}
-    dragger(cv,pl,function(){return [z1];},function(i,x,y){z1.x=clamp(x,-5,5); z1.y=clamp(y,-5,5); draw();});
+    dragger(cv,pl,function(){return [z1];},function(i,x,y){var b=vbnd(pl); z1.x=clamp(x,-b.x,b.x); z1.y=clamp(y,-b.y,b.y); draw();});
     reg('sl-rotation',{show:draw,redraw:draw});})();
 
   // ===== 31 practice =====
