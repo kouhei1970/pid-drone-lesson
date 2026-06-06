@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>インタラクティブ授業資料の実験室</title>
+<meta name="description" content="教科書からAIエージェントで「触って学べる」授業資料を作る試み。第一弾はドローンのPID姿勢制御教材。" />
+<style>
+  :root{
+    --bg:#faf9f5; --surface:#ffffff; --surface2:#f1efe8;
+    --ink:#1f1e1c; --mut:#6b6a64; --grd:rgba(0,0,0,0.12); --line:rgba(0,0,0,0.14);
+    --ref:#378ADD; --act:#D85A30; --thr:#639922;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1a1915; --surface:#23221d; --surface2:#2b2a24;
+      --ink:#ecebe4; --mut:#a3a299; --grd:rgba(255,255,255,0.14); --line:rgba(255,255,255,0.16);
+      --ref:#85B7EB; --act:#F0997B; --thr:#97C459;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic UI",sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px; margin:0 auto; padding:48px 20px 56px;}
+  .eyebrow{font-size:13px; letter-spacing:.08em; color:var(--act); font-weight:600; margin:0 0 10px;}
+  h1{font-size:28px; font-weight:700; margin:0 0 10px; line-height:1.3;}
+  .lead{font-size:16px; color:var(--mut); margin:0 0 36px;}
+  h2{font-size:16px; font-weight:600; margin:40px 0 12px;}
+  p{margin:0 0 14px;}
+  .why{background:var(--surface2); border-radius:12px; padding:20px 22px; margin:0 0 8px;}
+  .why p{font-size:14.5px; margin:0 0 12px;}
+  .why p:last-child{margin-bottom:0;}
+  .why .em{color:var(--ink); font-weight:600;}
+
+  .lessons{display:grid; gap:14px; margin:8px 0 0;}
+  .lcard{display:block; text-decoration:none; color:inherit;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; transition:transform .08s, border-color .12s, box-shadow .12s;}
+  .lcard:hover{transform:translateY(-2px); border-color:var(--act); box-shadow:0 6px 20px rgba(0,0,0,.06);}
+  .lcard .tag{display:inline-block; font-size:12px; color:var(--thr); font-weight:600; margin:0 0 6px;}
+  .lcard h3{font-size:18px; font-weight:600; margin:0 0 6px;}
+  .lcard .d{font-size:14px; color:var(--mut); margin:0;}
+  .lcard .go{font-size:14px; color:var(--act); font-weight:600; margin-top:12px; display:inline-block;}
+
+  .soon{background:transparent; border:1px dashed var(--line); border-radius:12px;
+    padding:18px 22px; color:var(--mut); font-size:14px;}
+
+  footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--mut); line-height:1.8;}
+  footer a{color:var(--mut);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">INTERACTIVE LESSON · 実験中</p>
+  <h1>触って学べる、授業資料の実験室</h1>
+  <p class="lead">教科書の内容を、読むだけでなく「自分で動かして確かめられる」教材へ。AIエージェントとの協業で作るインタラクティブ授業資料のサンプル集です。</p>
+
+  <div class="why">
+    <p><span class="em">なぜ作るのか。</span> 教科書をAIにスライド化させる検討を進めていましたが、LaTeX/Beamer で作るスライドはどうしても単調で、ページをめくるだけの退屈なものになりがちでした。</p>
+    <p>本当に学びを助けるのは、<span class="em">読者が値を変え、結果が即座に返ってくる</span>教材です。例えば制御ゲインを動かすと応答波形がその場で変わる——そういう「手を動かす理解」をブラウザだけで実現したい。</p>
+    <p>ただ、こうした教材を人が手作業で1つずつ作るのは作業量が膨大です。<span class="em">ここはAIとの協業が最も威力を発揮する領域</span>だと考え、その実証としてこのサンプルを公開しています。</p>
+  </div>
+
+  <h2>教材一覧</h2>
+  <div class="lessons">
+    <a class="lcard" href="lessons/drone-pid/">
+      <span class="tag">制御工学</span>
+      <h3>ドローン姿勢制御（PID）</h3>
+      <p class="d">1軸ロールのドローンを題材に、PID の3ゲイン（比例・積分・微分）をスライダーで調整。目標角への応答、オーバーシュート、整定時間、外乱（突風）抑制をリアルタイムに体感できます。</p>
+      <span class="go">教材を開く &rarr;</span>
+    </a>
+    <div class="soon">この先、力学・電気回路など他分野の教材も並べていく予定です。</div>
+  </div>
+
+  <footer>
+    AIエージェント（Claude Code）との協業で作成・公開。<br>
+    ソースと作成意図は <a href="https://github.com/kouhei1970/pid-drone-lesson">GitHub リポジトリ</a> を参照。<br>
+    &copy; 2026 Kouhei Ito — MIT License
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ドローン姿勢制御（ロール）— PIDインタラクティブ教材</title>
+<style>
+  :root{
+    --bg:#faf9f5; --surface:#ffffff; --surface2:#f1efe8;
+    --ink:#1f1e1c; --mut:#6b6a64; --grd:rgba(0,0,0,0.12); --line:rgba(0,0,0,0.14);
+    --ref:#378ADD; --act:#D85A30; --thr:#639922;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1a1915; --surface:#23221d; --surface2:#2b2a24;
+      --ink:#ecebe4; --mut:#a3a299; --grd:rgba(255,255,255,0.14); --line:rgba(255,255,255,0.16);
+      --ref:#85B7EB; --act:#F0997B; --thr:#97C459;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic UI",sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px; margin:0 auto; padding:24px 20px 40px;}
+  h1{font-size:20px; font-weight:600; margin:0 0 4px;}
+  .sub{font-size:14px; color:var(--mut); margin:0 0 20px;}
+  canvas{width:100%; display:block;}
+  #drone{height:180px;}
+  #plot{height:200px; margin-bottom:24px;}
+  .btns{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px;}
+  button{flex:1; min-width:92px; height:38px; padding:0 10px; font-size:14px;
+    color:var(--ink); background:transparent; border:1px solid var(--line);
+    border-radius:8px; cursor:pointer; transition:background .12s, transform .05s;}
+  button:hover{background:var(--surface2);}
+  button:active{transform:scale(.98);}
+  .row{display:flex; align-items:center; gap:12px; margin:0 0 13px;}
+  .row label{font-size:14px; color:var(--mut); width:74px;}
+  .row .val{font-size:14px; font-weight:600; min-width:38px; text-align:right;}
+  input[type=range]{flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+    background:var(--line); outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+    background:var(--act); cursor:pointer; border:2px solid var(--surface);}
+  input[type=range]::-moz-range-thumb{width:18px; height:18px; border-radius:50%;
+    background:var(--act); cursor:pointer; border:2px solid var(--surface);}
+  .cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:22px;}
+  .card{background:var(--surface2); border-radius:8px; padding:14px 16px;}
+  .card .k{font-size:13px; color:var(--mut);}
+  .card .v{font-size:24px; font-weight:600; margin-top:2px;}
+  .note{font-size:13px; color:var(--mut); margin-top:24px; line-height:1.7;}
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+  .back{display:inline-block; font-size:13px; color:var(--mut); text-decoration:none; margin-bottom:14px;}
+  .back:hover{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../../">&larr; 教材一覧へ戻る</a>
+  <h1>ドローン姿勢制御（1軸ロール）</h1>
+  <p class="sub">PIDの3ゲインをスライダーで調整し、目標角への応答と外乱抑制を体感する教材</p>
+
+  <h2 class="sr-only">ドローンのロール姿勢制御のインタラクティブ教材。PIDゲインを調整し応答を観察できます。</h2>
+
+  <canvas id="drone"></canvas>
+
+  <div class="btns">
+    <button id="bp">目標 +20&deg;</button>
+    <button id="b0">水平 0&deg;</button>
+    <button id="bn">目標 &minus;20&deg;</button>
+    <button id="bd">突風</button>
+    <button id="br">リセット</button>
+  </div>
+
+  <canvas id="plot"></canvas>
+
+  <div class="row"><label>Kp (比例)</label><input type="range" id="skp" min="0" max="20" step="0.5" value="4"><span class="val" id="vkp">4.0</span></div>
+  <div class="row"><label>Ki (積分)</label><input type="range" id="ski" min="0" max="5" step="0.1" value="0.8"><span class="val" id="vki">0.8</span></div>
+  <div class="row"><label>Kd (微分)</label><input type="range" id="skd" min="0" max="8" step="0.1" value="2"><span class="val" id="vkd">2.0</span></div>
+
+  <div class="cards">
+    <div class="card"><div class="k">オーバーシュート</div><div class="v" id="mos">&mdash;</div></div>
+    <div class="card"><div class="k">整定時間</div><div class="v" id="mts">&mdash;</div></div>
+    <div class="card"><div class="k">定常偏差</div><div class="v" id="mss">&mdash;</div></div>
+  </div>
+
+  <p class="note">モデル: 1軸剛体 Jθ&Prime; = τ &minus; bθ&prime; に、微分項を計測値側にとったPID（τ = Kp&middot;e + Ki&middot;&int;e &minus; Kd&middot;θ&prime;、積分アンチワインドアップ付き）。緑の矢印は左右の差動推力＝制御トルク。</p>
+</div>
+
+<script>
+(function(){
+  var dc=document.getElementById('drone'), pc=document.getElementById('plot');
+  var dctx=dc.getContext('2d'), pctx=pc.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  function cv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+  var C={get ref(){return cv('--ref');},get act(){return cv('--act');},get thr(){return cv('--thr');},
+         get ink(){return cv('--ink');},get mut(){return cv('--mut');},get grd(){return cv('--grd');}};
+
+  function fit(c,x){var w=c.clientWidth,h=c.clientHeight;c.width=w*dpr;c.height=h*dpr;x.setTransform(dpr,0,0,dpr,0,0);return{w:w,h:h};}
+
+  var J=1,b=0.5,h=0.004;
+  var Kp=4,Ki=0.8,Kd=2;
+  var theta=0,omega=0,integ=0,ref=20,t=0,tau=0;
+  var buf=[],rec=0;
+  var stepT=0,stepFrom=0,peak=0,settleStart=null,settled=null;
+
+  function newStep(v){ref=v;stepT=t;stepFrom=theta;peak=theta;settleStart=null;settled=null;}
+
+  function step(){
+    var e=ref-theta;
+    integ+=e*h; if(integ>60)integ=60; if(integ<-60)integ=-60;
+    tau=Kp*e+Ki*integ-Kd*omega;
+    var alpha=(tau-b*omega)/J;
+    omega+=alpha*h; theta+=omega*h; t+=h;
+    if(ref>stepFrom){if(theta>peak)peak=theta;}else{if(theta<peak)peak=theta;}
+    var span=Math.abs(ref-stepFrom), tol=Math.max(1.5,0.05*span);
+    if(Math.abs(ref-theta)<tol){if(settleStart===null)settleStart=t; if(settled===null&&t-settleStart>0.3)settled=settleStart-stepT;}
+    else settleStart=null;
+  }
+
+  function drawDrone(){
+    var s=fit(dc,dctx),w=s.w,hh=s.h; dctx.clearRect(0,0,w,hh);
+    var cx=w/2,cy=hh*0.52,arm=Math.min(w*0.30,150);
+    dctx.strokeStyle=C.grd; dctx.lineWidth=1; dctx.setLineDash([5,5]);
+    dctx.beginPath(); dctx.moveTo(20,cy); dctx.lineTo(w-20,cy); dctx.stroke(); dctx.setLineDash([]);
+    var rad=ref*Math.PI/180;
+    dctx.save(); dctx.translate(cx,cy); dctx.rotate(-rad);
+    dctx.strokeStyle=C.ref; dctx.globalAlpha=0.35; dctx.lineWidth=2;
+    dctx.beginPath(); dctx.moveTo(-arm,0); dctx.lineTo(arm,0); dctx.stroke(); dctx.globalAlpha=1; dctx.restore();
+    var th=theta*Math.PI/180;
+    dctx.save(); dctx.translate(cx,cy); dctx.rotate(-th);
+    dctx.strokeStyle=C.ink; dctx.lineWidth=4; dctx.lineCap='round';
+    dctx.beginPath(); dctx.moveTo(-arm,0); dctx.lineTo(arm,0); dctx.stroke();
+    var sp=Math.max(-0.7,Math.min(0.7,tau*0.04));
+    function rotor(x,extra){
+      dctx.strokeStyle=C.ink; dctx.lineWidth=3;
+      dctx.beginPath(); dctx.ellipse(x,-3,26,6,0,0,Math.PI*2); dctx.stroke();
+      var len=30*(1+extra); dctx.strokeStyle=C.thr; dctx.lineWidth=4;
+      dctx.beginPath(); dctx.moveTo(x,-8); dctx.lineTo(x,-8-len); dctx.stroke();
+      dctx.beginPath(); dctx.moveTo(x,-8-len); dctx.lineTo(x-4,-8-len+7); dctx.lineTo(x+4,-8-len+7); dctx.closePath();
+      dctx.fillStyle=C.thr; dctx.fill();
+    }
+    rotor(-arm,sp); rotor(arm,-sp); dctx.restore();
+    dctx.fillStyle=C.mut; dctx.font='13px sans-serif';
+    dctx.fillText('姿勢角 '+theta.toFixed(1)+'°  /  目標 '+ref.toFixed(0)+'°',14,18);
+  }
+
+  function drawPlot(){
+    var s=fit(pc,pctx),w=s.w,hh=s.h; pctx.clearRect(0,0,w,hh);
+    var padL=34,padR=8,padT=8,padB=18,x0=padL,x1=w-padR,y0=padT,y1=hh-padB,ymin=-45,ymax=45;
+    function Y(v){return y1-(v-ymin)/(ymax-ymin)*(y1-y0);}
+    var t0=t-6; function X(tt){return x0+(tt-t0)/6*(x1-x0);}
+    pctx.strokeStyle=C.grd; pctx.fillStyle=C.mut; pctx.font='11px sans-serif'; pctx.lineWidth=1;
+    [-40,-20,0,20,40].forEach(function(g){
+      pctx.globalAlpha=g===0?0.9:0.4; pctx.beginPath(); pctx.moveTo(x0,Y(g)); pctx.lineTo(x1,Y(g)); pctx.stroke();
+      pctx.globalAlpha=1; pctx.fillText(g+'°',4,Y(g)+3);
+    });
+    pctx.strokeStyle=C.ref; pctx.setLineDash([6,5]); pctx.lineWidth=2; pctx.beginPath();
+    for(var i=0;i<buf.length;i++){var p=buf[i]; if(p.t<t0)continue; var xx=X(p.t); if(i===0||buf[i-1].t<t0)pctx.moveTo(xx,Y(p.r)); else pctx.lineTo(xx,Y(p.r));}
+    pctx.stroke(); pctx.setLineDash([]);
+    pctx.strokeStyle=C.act; pctx.lineWidth=2.5; pctx.lineJoin='round'; pctx.beginPath(); var st=false;
+    for(var j=0;j<buf.length;j++){var q=buf[j]; if(q.t<t0)continue; var xj=X(q.t),yj=Y(Math.max(ymin,Math.min(ymax,q.th))); if(!st){pctx.moveTo(xj,yj);st=true;}else pctx.lineTo(xj,yj);}
+    pctx.stroke();
+    pctx.font='12px sans-serif'; pctx.fillStyle=C.act; pctx.fillText('姿勢角',x1-92,y0+12);
+    pctx.fillStyle=C.ref; pctx.fillText('目標値',x1-42,y0+12);
+  }
+
+  function metrics(){
+    var span=Math.abs(ref-stepFrom),os='—';
+    if(span>0.5){var ov=ref>stepFrom?Math.max(0,peak-ref):Math.max(0,ref-peak); os=(ov/span*100).toFixed(0)+'%';}
+    document.getElementById('mos').textContent=os;
+    document.getElementById('mts').textContent=settled===null?'—':settled.toFixed(2)+' s';
+    document.getElementById('mss').textContent=Math.abs(ref-theta).toFixed(1)+'°';
+  }
+
+  var last=performance.now();
+  function loop(now){
+    var fdt=Math.min(0.05,(now-last)/1000); last=now; var acc=fdt;
+    while(acc>=h){step(); acc-=h; rec+=h; if(rec>=0.03){buf.push({t:t,r:ref,th:theta}); rec=0; if(buf.length>600)buf.shift();}}
+    drawDrone(); drawPlot(); metrics(); requestAnimationFrame(loop);
+  }
+
+  function bind(id,vid,set){var el=document.getElementById(id),out=document.getElementById(vid);
+    el.addEventListener('input',function(){var v=parseFloat(el.value); set(v); out.textContent=v.toFixed(1);});}
+  bind('skp','vkp',function(v){Kp=v;}); bind('ski','vki',function(v){Ki=v;}); bind('skd','vkd',function(v){Kd=v;});
+  document.getElementById('bp').onclick=function(){newStep(20);};
+  document.getElementById('b0').onclick=function(){newStep(0);};
+  document.getElementById('bn').onclick=function(){newStep(-20);};
+  document.getElementById('bd').onclick=function(){omega+=70;};
+  document.getElementById('br').onclick=function(){theta=0;omega=0;integ=0;buf=[];t=0;newStep(20);};
+
+  newStep(20); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
