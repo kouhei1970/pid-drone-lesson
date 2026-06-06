@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<style>
+  /* OGP card builder for the circuit-2 lesson — rendered to assets/og-sinusoid.png at 1200x630 */
+  :root{
+    --bg:#faf9f5; --panel:#ece9e0; --ink:#1f1e1c; --mut:#6b6a64; --line:rgba(0,0,0,0.12);
+    --vec:#D85A30; --cos:#2E9E6B; --sin:#378ADD; --pur:#7E57C2;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  html,body{width:1200px; height:630px;}
+  body{background:var(--bg); color:var(--ink); overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Helvetica Neue",sans-serif; display:flex;}
+  .left{width:650px; padding:64px 0 56px 70px; display:flex; flex-direction:column; justify-content:center;}
+  .eyebrow{font-size:19px; letter-spacing:.1em; color:var(--vec); font-weight:700; margin-bottom:18px;}
+  h1{font-size:60px; line-height:1.16; font-weight:800; letter-spacing:-.01em;}
+  .formula{margin-top:26px; background:#fff; border:1px solid var(--line); border-radius:12px;
+    padding:16px 22px; font-family:Georgia,"Times New Roman",serif; font-size:30px; display:inline-block;}
+  .formula .g{color:var(--cos);} .formula .b{color:var(--sin);}
+  .sub{font-size:23px; color:var(--mut); line-height:1.55; margin-top:22px; font-weight:500;}
+  .foot{margin-top:auto; display:flex; align-items:center; gap:13px; font-size:19px; color:var(--mut); font-weight:600;}
+  .dot{width:11px; height:11px; border-radius:50%; background:var(--vec);}
+  .right{width:550px; height:100%; background:var(--panel); position:relative; overflow:hidden;}
+  svg{position:absolute; inset:0;}
+  .url{position:absolute; bottom:28px; right:36px; font-size:18px; color:var(--mut); font-weight:600;}
+  text{font-family:Georgia,serif; font-style:italic;}
+  .lab{font-style:normal; font-family:-apple-system,"Hiragino Sans",sans-serif; font-weight:700;}
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="eyebrow">電気回路Ⅱ · 第8回 · INTERACTIVE</div>
+    <h1>正弦波の表現</h1>
+    <div class="formula">e<sup>jθ</sup> = <span class="g">cos θ</span> + j <span class="b">sin θ</span></div>
+    <div class="sub">複素数とオイラーの公式を、<br>複素平面のベクトルをドラッグして学ぶ。</div>
+    <div class="foot"><span class="dot"></span>複素平面 · 単位円の回転 · 交流回路</div>
+  </div>
+
+  <div class="right">
+    <svg viewBox="0 0 550 630" width="550" height="630" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7.5,3 L0,6 Z" fill="#D85A30"/>
+        </marker>
+        <marker id="ax" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6.5,3 L0,6 Z" fill="#6b6a64"/>
+        </marker>
+      </defs>
+
+      <!-- unit circle -->
+      <circle cx="275" cy="320" r="150" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="2"/>
+
+      <!-- axes -->
+      <line x1="55" y1="320" x2="500" y2="320" stroke="#8a8880" stroke-width="2" marker-end="url(#ax)"/>
+      <line x1="275" y1="560" x2="275" y2="80" stroke="#8a8880" stroke-width="2" marker-end="url(#ax)"/>
+      <text x="476" y="345" fill="#6b6a64" font-size="20">Re</text>
+      <text x="286" y="98" fill="#6b6a64" font-size="20">Im</text>
+
+      <!-- dashed projections from the tip -->
+      <line x1="367.4" y1="201.8" x2="367.4" y2="320" stroke="rgba(0,0,0,0.30)" stroke-width="1.6" stroke-dasharray="6 5"/>
+      <line x1="367.4" y1="201.8" x2="275" y2="201.8" stroke="rgba(0,0,0,0.30)" stroke-width="1.6" stroke-dasharray="6 5"/>
+
+      <!-- cos (real) and sin (imag) projection bars -->
+      <line x1="275" y1="320" x2="367.4" y2="320" stroke="#2E9E6B" stroke-width="6"/>
+      <line x1="275" y1="320" x2="275" y2="201.8" stroke="#378ADD" stroke-width="6"/>
+
+      <!-- angle arc -->
+      <path d="M 313 320 A 38 38 0 0 0 298.4 290.1" fill="none" stroke="#6b6a64" stroke-width="2"/>
+      <text x="320" y="308" fill="#6b6a64" font-size="20">θ</text>
+
+      <!-- the vector e^{jθ} -->
+      <line x1="275" y1="320" x2="367.4" y2="201.8" stroke="#D85A30" stroke-width="5" stroke-linecap="round" marker-end="url(#ah)"/>
+      <circle cx="367.4" cy="201.8" r="5.5" fill="#D85A30"/>
+
+      <!-- projection labels -->
+      <text x="300" y="346" class="lab" fill="#2E9E6B" font-size="19">cos θ</text>
+      <text x="180" y="266" class="lab" fill="#378ADD" font-size="19">sin θ</text>
+    </svg>
+    <div class="url">kouhei1970.github.io/pid-drone-lesson</div>
+  </div>
+</body>
+</html>
