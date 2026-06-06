@@ -1,0 +1,162 @@
+[
+  {
+    "id": "sl-title",
+    "file": "audio/sl-title.mp3",
+    "duration": 20.88
+  },
+  {
+    "id": "sl-schedule",
+    "file": "audio/sl-schedule.mp3",
+    "duration": 18.84
+  },
+  {
+    "id": "sl-agenda",
+    "file": "audio/sl-agenda.mp3",
+    "duration": 17.95
+  },
+  {
+    "id": "sl-dcac",
+    "file": "audio/sl-dcac.mp3",
+    "duration": 23.98
+  },
+  {
+    "id": "sl-sincos",
+    "file": "audio/sl-sincos.mp3",
+    "duration": 18.24
+  },
+  {
+    "id": "sl-sine-eq",
+    "file": "audio/sl-sine-eq.mp3",
+    "duration": 21.05
+  },
+  {
+    "id": "sl-sine",
+    "file": "audio/sl-sine.mp3",
+    "duration": 15.38
+  },
+  {
+    "id": "sl-res-circuit",
+    "file": "audio/sl-res-circuit.mp3",
+    "duration": 18.5
+  },
+  {
+    "id": "sl-res-solve",
+    "file": "audio/sl-res-solve.mp3",
+    "duration": 22.58
+  },
+  {
+    "id": "sl-res-wave",
+    "file": "audio/sl-res-wave.mp3",
+    "duration": 16.37
+  },
+  {
+    "id": "sl-lr-circuit",
+    "file": "audio/sl-lr-circuit.mp3",
+    "duration": 23.9
+  },
+  {
+    "id": "sl-lr-wave",
+    "file": "audio/sl-lr-wave.mp3",
+    "duration": 18.34
+  },
+  {
+    "id": "sl-goal",
+    "file": "audio/sl-goal.mp3",
+    "duration": 20.21
+  },
+  {
+    "id": "sl-cvec",
+    "file": "audio/sl-cvec.mp3",
+    "duration": 17.95
+  },
+  {
+    "id": "sl-reim",
+    "file": "audio/sl-reim.mp3",
+    "duration": 27.17
+  },
+  {
+    "id": "sl-conj",
+    "file": "audio/sl-conj.mp3",
+    "duration": 19.32
+  },
+  {
+    "id": "sl-argmag",
+    "file": "audio/sl-argmag.mp3",
+    "duration": 23.14
+  },
+  {
+    "id": "sl-special",
+    "file": "audio/sl-special.mp3",
+    "duration": 15.6
+  },
+  {
+    "id": "sl-add",
+    "file": "audio/sl-add.mp3",
+    "duration": 17.52
+  },
+  {
+    "id": "sl-addnum",
+    "file": "audio/sl-addnum.mp3",
+    "duration": 22.61
+  },
+  {
+    "id": "sl-mul",
+    "file": "audio/sl-mul.mp3",
+    "duration": 19.94
+  },
+  {
+    "id": "sl-div",
+    "file": "audio/sl-div.mp3",
+    "duration": 13.73
+  },
+  {
+    "id": "sl-euler",
+    "file": "audio/sl-euler.mp3",
+    "duration": 23.57
+  },
+  {
+    "id": "sl-derive1",
+    "file": "audio/sl-derive1.mp3",
+    "duration": 16.49
+  },
+  {
+    "id": "sl-derive2",
+    "file": "audio/sl-derive2.mp3",
+    "duration": 25.44
+  },
+  {
+    "id": "sl-mac",
+    "file": "audio/sl-mac.mp3",
+    "duration": 15.72
+  },
+  {
+    "id": "sl-euler-circle",
+    "file": "audio/sl-euler-circle.mp3",
+    "duration": 19.22
+  },
+  {
+    "id": "sl-polar",
+    "file": "audio/sl-polar.mp3",
+    "duration": 26.76
+  },
+  {
+    "id": "sl-polmul",
+    "file": "audio/sl-polmul.mp3",
+    "duration": 16.92
+  },
+  {
+    "id": "sl-rotation",
+    "file": "audio/sl-rotation.mp3",
+    "duration": 17.69
+  },
+  {
+    "id": "sl-practice",
+    "file": "audio/sl-practice.mp3",
+    "duration": 16.3
+  },
+  {
+    "id": "sl-summary",
+    "file": "audio/sl-summary.mp3",
+    "duration": 27.7
+  }
+]

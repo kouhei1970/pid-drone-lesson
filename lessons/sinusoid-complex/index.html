@@ -157,6 +157,12 @@
   .nav select{flex:1; min-width:0; height:34px; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:8px; padding:0 10px; font-size:13px;}
   .nav .count{font-size:12.5px; color:var(--mut); font-variant-numeric:tabular-nums; white-space:nowrap;}
   .prog{position:fixed; left:0; bottom:52px; height:3px; background:var(--act); width:0; z-index:21; transition:width .2s;}
+  /* 解説（ナレーション音声）ボタン */
+  .narrbtn{position:fixed; top:max(10px,1.4vh); right:max(12px,1.2vw); z-index:25; display:inline-flex; align-items:center; gap:.4em;
+    border:1px solid var(--act); background:var(--surface); color:var(--act); border-radius:999px;
+    padding:.4em .9em; font-size:clamp(13px,1.7vh,22px); font-weight:700; cursor:pointer; box-shadow:0 1px 5px rgba(0,0,0,.10);}
+  .narrbtn:hover{background:var(--surface2);}
+  .narrbtn.playing{background:var(--act); color:#fff;}
 </style>
 </head>
 <body>
@@ -180,7 +186,7 @@
           <li>「複素数を掛ける＝回転（位相をずらす）」を理解する。</li>
         </ul>
       </div>
-      <p class="note">各ページ左上：<span class="tag2 tag-ex">解説</span>定義・図・式／<span class="tag2 tag-fig">図</span>回路図など／<span class="tag2 tag-do">操作</span>触って確認。→／Space で進みます。全32ページ。右下の ⛶ で全画面（プロジェクタ向け）。</p>
+      <p class="note">各ページ左上：<span class="tag2 tag-ex">解説</span>定義・図・式／<span class="tag2 tag-fig">図</span>回路図など／<span class="tag2 tag-do">操作</span>触って確認。→／Space で進みます。全32ページ。右上の <strong>🔊 解説</strong> で各ページの音声解説、右下の ⛶ で全画面（プロジェクタ向け）。</p>
     </div>
   </section>
 
@@ -749,6 +755,9 @@
 
 </div>
 
+<audio id="narr" preload="none"></audio>
+<button id="narrbtn" class="narrbtn" aria-label="解説音声を再生" style="display:none;">🔊 解説</button>
+
 <nav class="nav">
   <button class="arw" id="prev" aria-label="前へ">◀</button>
   <select id="jump" aria-label="スライド選択"></select>
@@ -812,18 +821,21 @@
   function go(i){
     i=clamp(i,0,N-1); if(i===cur && slides[cur].classList.contains('active'))return;
     if(hooks[cur].hide)hooks[cur].hide();
+    stopNarr();
     slides[cur].classList.remove('active'); cur=i; slides[cur].classList.add('active');
     jump.value=cur; $('#count').textContent=(cur+1)+' / '+N;
     $('#prev').disabled=cur===0; $('#next').disabled=cur===N-1;
     $('#prog').style.width=(cur/(N-1)*100)+'%'; slides[cur].scrollTop=0;
     try{history.replaceState(null,'','#'+(cur+1));}catch(e){}
     if(hooks[cur].show)hooks[cur].show();
+    syncNarrBtn();
   }
   $('#prev').onclick=function(){go(cur-1);}; $('#next').onclick=function(){go(cur+1);};
   jump.onchange=function(){go(+jump.value);};
   $('#fs').onclick=function(){ if(!document.fullscreenElement){ if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen(); } else { if(document.exitFullscreen)document.exitFullscreen(); } };
   document.addEventListener('keydown',function(e){
     if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+    if(e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return; // フォーカス中ボタンのSpace/Enterはナビ二重発火させない
     if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){go(cur+1);e.preventDefault();}
     else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(cur-1);e.preventDefault();}
     else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(N-1);}
@@ -832,6 +844,21 @@
   window.addEventListener('resize',function(){var h=hooks[cur]; if(h&&h.redraw)h.redraw();});
 
   function anim(draw){var run=false;function loop(){if(!run)return;draw();requestAnimationFrame(loop);}return{start:function(){if(!run){run=true;loop();}},stop:function(){run=false;}};}
+
+  // ---- 解説ナレーション音声（単一プレーヤを使い回す） ----
+  var NARR_DIR='audio/';                          // 音声ファイルは audio/<slide-id>.mp3
+  var NARR=new Set(slides.map(function(s){return s.id;})); // 全スライドに音声がある前提（無い場合は再生失敗時に自動で隠す）
+  var _audio=$('#narr'), _narrBtn=$('#narrbtn'), _playing=null;
+  function syncNarrBtn(){ var id=slides[cur].id; var on=(_playing===id && !_audio.paused);
+    if(NARR.has(id)){ _narrBtn.style.display='inline-flex'; _narrBtn.textContent=on?'⏸ 停止':'🔊 解説'; _narrBtn.classList.toggle('playing',on); }
+    else { _narrBtn.style.display='none'; } }
+  function stopNarr(){ try{_audio.pause(); _audio.currentTime=0;}catch(e){} _playing=null; }
+  function playNarr(id){ if(!NARR.has(id))return; stopNarr(); _audio.src=NARR_DIR+id+'.mp3'; _playing=id;
+    var p=_audio.play(); if(p&&p.catch)p.catch(function(){ NARR.delete(id); _playing=null; syncNarrBtn(); }); syncNarrBtn(); }
+  _narrBtn.onclick=function(e){ e.stopPropagation(); this.blur(); var id=slides[cur].id;
+    if(_playing===id && !_audio.paused){ stopNarr(); } else { playNarr(id); } syncNarrBtn(); };
+  _audio.addEventListener('ended', function(){ _playing=null; syncNarrBtn(); });
+  _audio.addEventListener('pause', function(){ syncNarrBtn(); });
 
   // ---- complex plane ----
   function makePlane(cv, spanX, spanY){
