@@ -2,32 +2,32 @@
   {
     "id": "sl-title",
     "file": "audio/sl-title.mp3",
-    "duration": 20.88
+    "duration": 20.98
   },
   {
     "id": "sl-schedule",
     "file": "audio/sl-schedule.mp3",
-    "duration": 18.84
+    "duration": 18.86
   },
   {
     "id": "sl-agenda",
     "file": "audio/sl-agenda.mp3",
-    "duration": 17.95
+    "duration": 17.9
   },
   {
     "id": "sl-dcac",
     "file": "audio/sl-dcac.mp3",
-    "duration": 23.98
+    "duration": 24.05
   },
   {
     "id": "sl-sincos",
     "file": "audio/sl-sincos.mp3",
-    "duration": 18.24
+    "duration": 18.17
   },
   {
     "id": "sl-sine-eq",
     "file": "audio/sl-sine-eq.mp3",
-    "duration": 21.05
+    "duration": 21.0
   },
   {
     "id": "sl-sine",
@@ -37,7 +37,7 @@
   {
     "id": "sl-res-circuit",
     "file": "audio/sl-res-circuit.mp3",
-    "duration": 18.5
+    "duration": 18.48
   },
   {
     "id": "sl-res-solve",
@@ -77,7 +77,7 @@
   {
     "id": "sl-conj",
     "file": "audio/sl-conj.mp3",
-    "duration": 19.32
+    "duration": 19.25
   },
   {
     "id": "sl-argmag",
@@ -157,6 +157,6 @@
   {
     "id": "sl-summary",
     "file": "audio/sl-summary.mp3",
-    "duration": 27.7
+    "duration": 27.65
   }
 ]
