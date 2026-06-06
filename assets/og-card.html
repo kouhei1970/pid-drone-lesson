@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<style>
+  /* OGP card builder — rendered to assets/og-card.png at 1200x630 */
+  :root{
+    --bg:#faf9f5; --surface2:#f1efe8; --panel:#ece9e0;
+    --ink:#1f1e1c; --mut:#6b6a64; --line:rgba(0,0,0,0.12);
+    --ref:#378ADD; --act:#D85A30; --thr:#639922;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  html,body{width:1200px; height:630px;}
+  body{background:var(--bg); color:var(--ink); overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Helvetica Neue",sans-serif;
+    display:flex;}
+  .left{width:640px; padding:72px 0 64px 72px; display:flex; flex-direction:column; justify-content:center;}
+  .eyebrow{font-size:20px; letter-spacing:.14em; color:var(--act); font-weight:700; margin-bottom:22px;}
+  h1{font-size:62px; line-height:1.18; font-weight:800; letter-spacing:-.01em;}
+  h1 .hl{color:var(--act);}
+  .sub{font-size:25px; color:var(--mut); line-height:1.6; margin-top:26px; font-weight:500;}
+  .foot{margin-top:auto; display:flex; align-items:center; gap:14px; font-size:20px; color:var(--mut); font-weight:600;}
+  .dot{width:11px; height:11px; border-radius:50%; background:var(--thr);}
+  .right{width:560px; height:100%; background:var(--panel); position:relative; overflow:hidden;}
+  svg{position:absolute; inset:0;}
+  .url{position:absolute; bottom:30px; right:38px; font-size:19px; color:var(--mut); font-weight:600;}
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="eyebrow">INTERACTIVE LESSON</div>
+    <h1>触って学べる、<br>授業資料の<span class="hl">実験室</span></h1>
+    <div class="sub">PIDゲインを動かすと、<br>応答波形がその場で変わる。</div>
+    <div class="foot"><span class="dot"></span>ドローン姿勢制御（PID）&nbsp;·&nbsp;AIと作る教材</div>
+  </div>
+
+  <div class="right">
+    <svg viewBox="0 0 560 630" width="560" height="630" xmlns="http://www.w3.org/2000/svg">
+      <!-- horizon reference (dashed) -->
+      <line x1="60" y1="232" x2="500" y2="232" stroke="rgba(0,0,0,0.14)" stroke-width="2" stroke-dasharray="7 7"/>
+      <!-- target attitude line (faded blue, tilted +20deg) -->
+      <g transform="translate(280,232) rotate(-20)">
+        <line x1="-170" y1="0" x2="170" y2="0" stroke="#378ADD" stroke-width="3" opacity="0.32"/>
+      </g>
+
+      <!-- drone arm tilted ~ +13deg with differential thrust -->
+      <g transform="translate(280,232) rotate(-13)">
+        <line x1="-168" y1="0" x2="168" y2="0" stroke="#1f1e1c" stroke-width="7" stroke-linecap="round"/>
+        <!-- left rotor + long thrust -->
+        <ellipse cx="-168" cy="-4" rx="30" ry="7" fill="none" stroke="#1f1e1c" stroke-width="4"/>
+        <line x1="-168" y1="-10" x2="-168" y2="-92" stroke="#639922" stroke-width="7" stroke-linecap="round"/>
+        <path d="M -168 -92 l -8 14 l 16 0 z" fill="#639922"/>
+        <!-- right rotor + short thrust -->
+        <ellipse cx="168" cy="-4" rx="30" ry="7" fill="none" stroke="#1f1e1c" stroke-width="4"/>
+        <line x1="168" y1="-10" x2="168" y2="-58" stroke="#639922" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 168 -58 l -8 14 l 16 0 z" fill="#639922"/>
+      </g>
+
+      <!-- response plot inset (lower area) -->
+      <g transform="translate(0,372)">
+        <!-- target dashed -->
+        <line x1="64" y1="70" x2="496" y2="70" stroke="#378ADD" stroke-width="3" stroke-dasharray="8 6"/>
+        <!-- step response: rise, overshoot, settle -->
+        <path d="M 64 196
+                 C 120 196, 150 92, 200 56
+                 C 232 33, 260 46, 296 70
+                 C 330 92, 360 78, 400 70
+                 L 496 70"
+              fill="none" stroke="#D85A30" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- baseline -->
+        <line x1="64" y1="196" x2="496" y2="196" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+      </g>
+    </svg>
+    <div class="url">kouhei1970.github.io/pid-drone-lesson</div>
+  </div>
+</body>
+</html>
